@@ -1,11 +1,11 @@
 # ROS-tuto2
 
-1. Go to `catkin_ws/src`
-
+## Creating a world with a custom robot inside
+1. Go to `catkin_ws/src` and type
 ```
 catkin_create_pkg my_package
 ```
-This creates the folder of my_package under `catkin_ws/src`. In `my_package folder` you will see `CMakeLists.txt` and `package.xml`.
+This creates `my_package` folder under `catkin_ws/src`. In `my_package`, you will see `CMakeLists.txt` and `package.xml`.
 
 2. Create new package and necessary directories in `my_package`.
 ```
