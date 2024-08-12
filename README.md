@@ -257,7 +257,8 @@ We should add both link and a joint for Camera and Lidar.
   </joint>
 ```
 ### Step 4.1. Add Lidar
-1. 
-
-
-Download [hokuyo.dae](https://s3-us-west-1.amazonaws.com/udacity-robotics/hokuyo.dae) and put it in 
+1. Create meshes directory and mesh file in it
+```
+cd .. && mkdir meshes && cd meshes
+```
+2. Download [hokuyo.dae](https://s3-us-west-1.amazonaws.com/udacity-robotics/hokuyo.dae) and put it in `meshes` directory. 
