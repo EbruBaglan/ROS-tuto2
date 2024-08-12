@@ -89,7 +89,7 @@ cd ~/catkin_ws/src/my_package && mkdir urdf
 cd urdf && touch my_robot.xacro && gedit my_robot.xacro
 ```
 3. Paste the following into xacro file
-```<robot name="emres_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+```<robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
  <link name="right_wheel">
 <collision>
 	<origin xyz="0 0 0" rpy="0 1.5707 1.5707" />
@@ -280,7 +280,11 @@ roslaunch my_package world.launch
 We should add both link and a joint for Camera and Lidar.
 
 ### Step 4.1. Add Camera
-1. Add the following link  and joint description to `my_robot.xacro`.
+1. Open `my_robot.xacro`
+```
+cd ~/catkin_ws/src/my_package/urdf && gedit my_robot.xacro
+```
+2. Add the following link  and joint description to `my_robot.xacro`.
 ```
     <link name="camera">
     <collision>
