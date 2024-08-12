@@ -309,5 +309,49 @@ cd ../../.. && catkin_make && source devel/setup.bash
 ```
 6. Roslaunch
 ```
-roslaunch my_robot world.launch
+roslaunch my_package world.launch
 ```
+## Step 5. Gazebo Plugins
+URDF in itself can't help with takes those images in simulation? How does a lidar sensor take laser measurements in simulation? How exactly does your robot move in a simulated environment?..But Gazebo allows for plugins that implement specific use-cases.
+We will cover the use of three such plugins:
+
+A plugin for the camera sensor.
+A plugin for the Hokuyo lidar sensor.
+A plugin for the wheel joints actuator.
+
+
+1. Download the [my_robot.gazebo](https://s3-us-west-1.amazonaws.com/udacity-robotics/my_robot.gazebo) file. Check lines 14 49 93 for topic names.
+
+2. Put it under `my_package/urdf` directory.
+3. Add the following line to `my_robot.xacro` immediately before `robot_footprint` link.
+```
+ <xacro:include filename="$(find my_package)/urdf/my_robot.gazebo" />
+```
+## Step 6. Rviz Integration
+1. Open `robot_description.launch` file.
+```
+gedit ~/catkin_ws/src/my_package/launch/robot_description.launch
+```
+  
+2. Add the following lines after the first `param` definition.
+```
+  <!-- Send fake joint values-->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="false"/>
+  </node>
+
+  <!-- Send robot states to tf -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
+```
+Those elements add two nodes - the joint_state_publisher and the robot_state_publisher.
+
+3. Open `world.launch` file.
+```
+gedit ~/catkin_ws/src/my_package/launch/world.launch
+```
+4. Add the following lines after the urdf_spawner node definition.
+```
+<!--launch rviz-->
+<node name="rviz" pkg="rviz" type="rviz" respawn="false"/>
+```
+5.
