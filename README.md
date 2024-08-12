@@ -366,3 +366,16 @@ cd ~/catkin_ws/ && source devel/setup.bash && roslaunch my_package world.launch
     - add LaserScan and select the topic that was defined in the Hokuyo Gazebo plugin.
 
 7. Add a box or sphere to see the effect on RViz.
+
+## Step 7. Move the robot
+1. Publish
+```
+rostopic pub /cmd_vel geometry_msgs/Twist  "linear:
+  x: 0.1
+  y: 0.0
+  z: 0.0
+angular:
+  x: 0.0
+  y: 0.0
+  z: 0.1" 
+```
