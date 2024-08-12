@@ -222,7 +222,7 @@ We should add both link and a joint for Camera and Lidar.
   <link name="camera">
     <collision>
       <geometry>
-        <box size="0.6 0.1 0.2"/>
+        <box size="0.05 0.05 0.05"/>
       </geometry>
     <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="0.1"/>
@@ -244,9 +244,9 @@ We should add both link and a joint for Camera and Lidar.
       <mass value="0.1"/>
       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
     </visual>
-    <xacro::box_inertia mass="0.1" x="0.05" y="0.05" z="0.05">
+    <box_inertia sizeX="0.05" sizeY="0.05" sizeZ="0.05" mass="0.1">
       <origin xyz="0 0 0" rpy="0 0 0"/>
-    </xacro::box_inertia>
+    </box_inertia>
   </link>
 
   <joint type="fixed" name="camera_joint">
@@ -288,7 +288,7 @@ cd ../urdf && gedit my_robot.xacro
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://my_robot/meshes/hokuyo.dae"/>
+        <mesh filename="package://ebrus_robot/meshes/hokuyo.dae"/>
       </geometry>
     <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="1e-5"/>
