@@ -217,5 +217,47 @@ roslaunch my_package world.launch
 We should add both link and a joint for Camera and Lidar.
 
 ### Step 4.1. Add Camera
+1. Add the following link  and joint description to `my_robot.xacro`.
+```
+  <link name="camera">
+    <collision>
+      <geometry>
+        <box size="0.6 0.1 0.2"/>
+      </geometry>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </collision>
+    <inertial>
+      <geometry>
+        <box size="0.6 0.1 0.2"/>
+      </geometry>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.6 0.1 0.2"/>
+      </geometry>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </visual>
+    <xacro::box_inertia mass="0.1" x="0.05" y="0.05" z="0.05">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro::box_inertia>
+  </link>
+
+  <joint type="fixed" name="camera_joint">
+    <origin xyz="0.2 0 0" rpy="0 0 0"/>
+    <child link="camera"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+  </joint>
+```
+### Step 4.1. Add Lidar
+1. 
+
 
 Download [hokuyo.dae](https://s3-us-west-1.amazonaws.com/udacity-robotics/hokuyo.dae) and put it in 
