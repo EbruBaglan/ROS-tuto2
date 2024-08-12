@@ -351,7 +351,7 @@ cd ../urdf && gedit my_robot.xacro
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://ebrus_robot/meshes/hokuyo.dae"/>
+        <mesh filename="package://my_package/meshes/hokuyo.dae"/>
       </geometry>
     <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="1e-5"/>
