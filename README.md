@@ -209,6 +209,13 @@ cd ../../.. && catkin_make && source devel/setup.bash
 ```
 roslaunch my_package world.launch
 ```
+## Step 3. Add right and left wheels
 
+--to be filled later
+
+## Step 4. Add camera and Lidar
+We should add both link and a joint for Camera and Lidar.
+
+### Step 4.1. Add Camera
 
 Download [hokuyo.dae](https://s3-us-west-1.amazonaws.com/udacity-robotics/hokuyo.dae) and put it in 
