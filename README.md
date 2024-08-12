@@ -219,7 +219,7 @@ We should add both link and a joint for Camera and Lidar.
 ### Step 4.1. Add Camera
 1. Add the following link  and joint description to `my_robot.xacro`.
 ```
-  <link name="camera">
+    <link name="camera">
     <collision>
       <geometry>
         <box size="0.05 0.05 0.05"/>
@@ -230,7 +230,7 @@ We should add both link and a joint for Camera and Lidar.
     </collision>
     <inertial>
       <geometry>
-        <box size="0.6 0.1 0.2"/>
+        <box size="0.05 0.05 0.05"/>
       </geometry>
     <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="0.1"/>
@@ -238,7 +238,7 @@ We should add both link and a joint for Camera and Lidar.
     </inertial>
     <visual>
       <geometry>
-        <box size="0.6 0.1 0.2"/>
+        <box size="0.05 0.05 0.05"/>
       </geometry>
     <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="0.1"/>
