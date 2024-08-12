@@ -364,3 +364,5 @@ cd ~/catkin_ws/ && source devel/setup.bash && roslaunch my_package world.launch
     - add RobotModel and your robot model should load up in RViz.
     - add Camera and select the Image topic that was defined in the camera Gazebo plugin
     - add LaserScan and select the topic that was defined in the Hokuyo Gazebo plugin.
+
+7. Add a box or sphere to see the effect on RViz.
