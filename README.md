@@ -389,7 +389,11 @@ A plugin for the wheel joints actuator.
 
 1. Download the [my_robot.gazebo](https://s3-us-west-1.amazonaws.com/udacity-robotics/my_robot.gazebo) file. Check lines 14 49 93 for topic names.
 
-2. Put it under `my_package/urdf` directory.
+2. Put it under `my_package/urdf` directory. (Replace <full_path_to_my_robot.gazebo> with the actual path)
+```
+cd ~/catkin_ws/src/my_package/urdf && cp <full_path_to_my_robot.gazebo>/my_robot.gazebo .
+```
+   
 3. Add the following line to `my_robot.xacro` immediately before `robot_footprint` link.
 ```
  <xacro:include filename="$(find my_package)/urdf/my_robot.gazebo" />
