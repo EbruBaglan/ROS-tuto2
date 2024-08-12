@@ -261,4 +261,49 @@ We should add both link and a joint for Camera and Lidar.
 ```
 cd .. && mkdir meshes && cd meshes
 ```
-2. Download [hokuyo.dae](https://s3-us-west-1.amazonaws.com/udacity-robotics/hokuyo.dae) and put it in `meshes` directory. 
+2. Download [hokuyo.dae](https://s3-us-west-1.amazonaws.com/udacity-robotics/hokuyo.dae) and put it in `meshes` directory.
+
+3. Go to urdf to open `my_robot.xacro`.
+```
+cd ../urdf && gedit my_robot.xacro
+```
+4. Add the following into `my_robot.xacro` file.
+```
+  <link name="hokuyo">
+    <collision>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-5"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </collision>
+    <inertial>
+      <geometry>
+        <box size="0.6 0.1 0.2"/>
+      </geometry>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-5"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot/meshes/hokuyo.dae"/>
+      </geometry>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-5"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </visual>
+  </link>
+
+  <joint type="fixed" name="hokuyo_joint">
+    <origin xyz="0.15 0 0.1" rpy="0 0 0"/>
+    <child link="hokuyo"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+  </joint>
+```
+5. Go under `catkin_ws` for catkin_make and sourcing.
+```
+cd ../../.. && catkin_make && source devel/setup.bash
+```
