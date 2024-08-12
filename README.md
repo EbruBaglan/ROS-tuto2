@@ -89,9 +89,72 @@ cd ~/catkin_ws/src/my_package && mkdir urdf
 cd urdf && touch my_robot.xacro && gedit my_robot.xacro
 ```
 3. Paste the following into xacro file
-```
-<robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+```<robot name="emres_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+ <link name="right_wheel">
+<collision>
+	<origin xyz="0 0 0" rpy="0 1.5707 1.5707" />
+	<geometry>
+    		 <cylinder radius="0.1" length="0.05"/>
+  	</geometry>
+</collision>
+<inertial>
+	<mass value="5"/>
+	<origin xyz="0 0 0" rpy="0 1.5707 1.5707" />
 
+	<inertia
+          ixx="0.1" ixy="0" ixz="0"
+          iyy="0.1" iyz="0"
+          izz="0.1"
+        />
+
+</inertial>
+<visual>
+	<origin xyz="0 0 0" rpy="0 1.5707 1.5707" />
+ 	<geometry>
+     		<cylinder radius="0.1" length="0.05"/>
+  	</geometry>
+</visual>
+</link>
+ <link name="left_wheel">
+<collision>
+	<origin xyz="0 0 0" rpy="0 1.5707 1.5707" />
+	<geometry>
+    		 <cylinder radius="0.1" length="0.05"/>
+  	</geometry>
+</collision>
+<inertial>
+	<mass value="5"/>
+	<origin xyz="0 0 0" rpy="0 1.5707 1.5707" />
+	<inertia
+          ixx="0.1" ixy="0" ixz="0"
+          iyy="0.1" iyz="0"
+          izz="0.1"
+        />
+
+</inertial>
+<visual>
+	<origin xyz="0 0 0" rpy="0 1.5707 1.5707" />
+ 	<geometry>
+     		<cylinder radius="0.1" length="0.05"/>
+	</geometry>
+</visual>
+</link>
+  <joint type="continuous" name="left_wheel_hinge">
+    <origin xyz="0 0.15 0" rpy="0 0 0"/>
+    <child link="left_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <dynamics damping="1.0" friction="1.0"/>
+  </joint>
+  <joint type="continuous" name="right_wheel_hinge">
+    <origin xyz="0 -0.15 0" rpy="0 0 0"/>
+    <child link="right_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <dynamics damping="1.0" friction="1.0"/>
+  </joint>
   <link name="robot_footprint"></link>
 
   <joint name="robot_footprint_joint" type="fixed">
@@ -169,7 +232,7 @@ cd ../launch && touch robot_description.launch && gedit robot_description.launch
 <launch>
 
   <!-- send urdf to param server -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find my_robot)/urdf/my_robot.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find my_package)/urdf/my_robot.xacro'" />
 
 </launch>
 ```
