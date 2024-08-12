@@ -88,7 +88,7 @@ cd ~/catkin_ws/src/my_package && mkdir urdf
 ```
 cd urdf && touch my_robot.xacro && gedit my_robot.xacro
 ```
-3. PAste the following into xacro file
+3. Paste the following into xacro file
 ```
 <robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
@@ -160,6 +160,55 @@ cd urdf && touch my_robot.xacro && gedit my_robot.xacro
 
 </robot>
 ```
-5.
+4. Go to `launch` folder, create robot_description.launch and open it.
+```
+cd ../launch && touch robot_description.launch && gedit robot_description.launch 
+```
+5.Paste the following into robot_description.launch.
+```
+<launch>
+
+  <!-- send urdf to param server -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find my_robot)/urdf/my_robot.xacro'" />
+
+</launch>
+```
+6. Open world.launch and update it to employ the robot.
+```
+gedit world.launch
+```
+7. Add the following after the `<launch>`.
+```
+  <!-- Robot pose -->
+  <arg name="x" default="0"/>
+  <arg name="y" default="0"/>
+  <arg name="z" default="0"/>
+  <arg name="roll" default="0"/>
+  <arg name="pitch" default="0"/>
+  <arg name="yaw" default="0"/>
+
+  <!-- Launch other relevant files-->
+  <include file="$(find my_package)/launch/robot_description.launch"/>
+```
+8. Add the following before the `</launch>`.
+```
+<!-- Find my robot Description-->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find my_package)/urdf/my_robot.xacro'"/>
+
+  <!-- Spawn My Robot -->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" 
+        args="-urdf -param robot_description -model my_robot 
+              -x $(arg x) -y $(arg y) -z $(arg z)
+              -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)"/>
+```
+9. Go to `catkin_ws`, do `catkin_make`, then `source devel/setup.bash`.
+```
+cd ../../.. && catkin_make && source devel/setup.bash
+```
+10. Run the launch file.
+```
+roslaunch my_package world.launch
+```
+
 
 Download [hokuyo.dae](https://s3-us-west-1.amazonaws.com/udacity-robotics/hokuyo.dae) and put it in 
