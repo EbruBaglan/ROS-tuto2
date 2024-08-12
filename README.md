@@ -354,4 +354,13 @@ gedit ~/catkin_ws/src/my_package/launch/world.launch
 <!--launch rviz-->
 <node name="rviz" pkg="rviz" type="rviz" respawn="false"/>
 ```
-5.
+5. Source setup file and roslaunch
+```
+cd ~/catkin_ws/ && source devel/setup.bash && roslaunch my_package world.launch
+```
+6. On the left side of RViz, under Displays:
+  - Select odom for fixed frame
+  - Click the Add button and
+    - add RobotModel and your robot model should load up in RViz.
+    - add Camera and select the Image topic that was defined in the camera Gazebo plugin
+    - add LaserScan and select the topic that was defined in the Hokuyo Gazebo plugin.
