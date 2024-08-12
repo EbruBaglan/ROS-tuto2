@@ -303,7 +303,11 @@ cd ../urdf && gedit my_robot.xacro
     <axis xyz="0 1 0" rpy="0 0 0"/>
   </joint>
 ```
-5. Go under `catkin_ws` for catkin_make and sourcing.
+5. Go under `catkin_ws` for `catkin_make` and sourcing.
 ```
 cd ../../.. && catkin_make && source devel/setup.bash
+```
+6. Roslaunch
+```
+roslaunch my_robot world.launch
 ```
