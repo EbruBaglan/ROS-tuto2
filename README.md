@@ -450,3 +450,129 @@ angular:
   y: 0.0
   z: 0.1" 
 ```
+## Step 8. Follow a ball in world
+
+Create `ball_chaser` package with `drive_bot` node to employ a service to *publish* velocity to wheel joints and `process_image` node to *subscribe* to the camera image and determine position of the ball.
+
+```
+cd ~/catkin_ws/src && catkin_create_pkg ball_chaser roscpp std_msgs message_generation
+```
+This package will contain C++ source code and messages, that`s why we added `roscpp std_msgs message_generation` dependencies.
+
+```
+cd ~/catkin_ws/src/ball_chaser/ && mkdir srv launch
+```
+mkdir takes multiple arguments, simply run mkdir dir1 dir2 dir3...
+
+`srv` is the directory where you store service files and `launch` is the directory where you store launch files. The `src` directory where you will store C++ programs is created by default.
+
+```
+cd ~/catkin_ws/ && catkin_make
+```
+
+### Step 8.1. drive_bot node
+`a ball_chaser/command_robot` service to drive the robot around by setting its linear x and angular z velocities. The service server publishes messages containing the velocities for the wheel joints.
+
+After writing this node, you will be able to request the `ball_chaser/command_robot` service, either from the terminal or from a client node, to drive the robot by controlling its linear x and angular z velocities.
+
+The drive_bot.cpp node is similar to the arm_mover.cpp node that you already wrote. Both nodes contain a ROS publisher and service. But this time, instead of publishing messages to the arm joint angles, you have to publish messages to the wheels joint angles. Please refer to the arm_mover.cpp node before you begin coding the drive_bot.cpp node.
+
+arm_mover.cpp:
+```
+#include "ros/ros.h"
+#include "simple_arm/GoToPosition.h"
+#include <std_msgs/Float64.h>
+
+// Global joint publisher variables
+ros::Publisher joint1_pub, joint2_pub;
+
+// This function checks and clamps the joint angles to a safe zone
+std::vector<float> clamp_at_boundaries(float requested_j1, float requested_j2)
+{
+    // Define clamped joint angles and assign them to the requested ones
+    float clamped_j1 = requested_j1;
+    float clamped_j2 = requested_j2;
+
+    // Get min and max joint parameters, and assigning them to their respective variables
+    float min_j1, max_j1, min_j2, max_j2;
+    // Assign a new node handle since we have no access to the main one
+    ros::NodeHandle n2;
+    // Get node name
+    std::string node_name = ros::this_node::getName();
+    // Get joints min and max parameters
+    n2.getParam(node_name + "/min_joint_1_angle", min_j1);
+    n2.getParam(node_name + "/max_joint_1_angle", max_j1);
+    n2.getParam(node_name + "/min_joint_2_angle", min_j2);
+    n2.getParam(node_name + "/max_joint_2_angle", max_j2);
+
+    // Check if joint 1 falls in the safe zone, otherwise clamp it
+    if (requested_j1 < min_j1 || requested_j1 > max_j1) {
+        clamped_j1 = std::min(std::max(requested_j1, min_j1), max_j1);
+        ROS_WARN("j1 is out of bounds, valid range (%1.2f,%1.2f), clamping to: %1.2f", min_j1, max_j1, clamped_j1);
+    }
+    // Check if joint 2 falls in the safe zone, otherwise clamp it
+    if (requested_j2 < min_j2 || requested_j2 > max_j2) {
+        clamped_j2 = std::min(std::max(requested_j2, min_j2), max_j2);
+        ROS_WARN("j2 is out of bounds, valid range (%1.2f,%1.2f), clamping to: %1.2f", min_j2, max_j2, clamped_j2);
+    }
+
+    // Store clamped joint angles in a clamped_data vector
+    std::vector<float> clamped_data = { clamped_j1, clamped_j2 };
+
+    return clamped_data;
+}
+
+// This callback function executes whenever a safe_move service is requested
+bool handle_safe_move_request(simple_arm::GoToPosition::Request& req,
+    simple_arm::GoToPosition::Response& res)
+{
+
+    ROS_INFO("GoToPositionRequest received - j1:%1.2f, j2:%1.2f", (float)req.joint_1, (float)req.joint_2);
+
+    // Check if requested joint angles are in the safe zone, otherwise clamp them
+    std::vector<float> joints_angles = clamp_at_boundaries(req.joint_1, req.joint_2);
+
+    // Publish clamped joint angles to the arm
+    std_msgs::Float64 joint1_angle, joint2_angle;
+
+    joint1_angle.data = joints_angles[0];
+    joint2_angle.data = joints_angles[1];
+
+    joint1_pub.publish(joint1_angle);
+    joint2_pub.publish(joint2_angle);
+
+    // Wait 3 seconds for arm to settle
+    ros::Duration(3).sleep();
+
+    // Return a response message
+    res.msg_feedback = "Joint angles set - j1: " + std::to_string(joints_angles[0]) + " , j2: " + std::to_string(joints_angles[1]);
+    ROS_INFO_STREAM(res.msg_feedback);
+
+    return true;
+}
+
+int main(int argc, char** argv)
+{
+    // Initialize the arm_mover node and create a handle to it
+    ros::init(argc, argv, "arm_mover");
+    ros::NodeHandle n;
+
+    // Define two publishers to publish std_msgs::Float64 messages on joints respective topics
+    joint1_pub = n.advertise<std_msgs::Float64>("/simple_arm/joint_1_position_controller/command", 10);
+    joint2_pub = n.advertise<std_msgs::Float64>("/simple_arm/joint_2_position_controller/command", 10);
+
+    // Define a safe_move service with a handle_safe_move_request callback function
+    ros::ServiceServer service = n.advertiseService("/arm_mover/safe_move", handle_safe_move_request);
+    ROS_INFO("Ready to send joint commands");
+
+    // Handle ROS communication events
+    ros::spin();
+
+    return 0;
+}
+```
+
+
+
+
+
