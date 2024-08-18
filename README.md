@@ -632,8 +632,137 @@ int main(int argc, char** argv)
     return 0;
 }
 ```
+Edit CMakeLists.txt:
+```
 
+```
+Build package:
+```
+cd ~/catkin_ws/ && catkin_make && source devel/setup.bash
+```
 
+```
+roslaunch my_package world.launch
+```
+Run node:
+```
+cd ~/catkin_ws/ && source devel/setup.bash && rosrun ball_chaser drive_bot
+```
 
+cd ~/catkin_ws/
+$ source devel/setup.bash
+
+$ rosservice call /ball_chaser/command_robot "linear_x: 0.5
+angular_z: 0.0"  # This request should drive your robot forward
+
+$ rosservice call /ball_chaser/command_robot "linear_x: 0.0
+angular_z: 0.5"  # This request should drive your robot left
+
+$ rosservice call /ball_chaser/command_robot "linear_x: 0.0
+angular_z: -0.5"  # This request should drive your robot right
+
+$ rosservice call /ball_chaser/command_robot "linear_x: 0.0
+angular_z: 0.0"  # This request should bring your robot to a complete stop
+
+Let’s add the `drive_bot` node to a launch file. Create a `ball_chaser.launch` file under the launch directory of your `ball_chaser` package and then copy this code to it:
+
+```
+<launch>
+
+ <!-- The drive_bot node -->
+  <node name="drive_bot" type="drive_bot" pkg="ball_chaser" output="screen">
+  </node>
+
+</launch>
+```
+Model a White Ball.
+```
+gazebo # then Edit-> Model Editor
+```
+Double click on the sphere, and change its radius to 0.1 both in Visual and Collision
+
+To change the ball’s color to white, set its Visual Ambient, Diffuse, Specular, and Emissive RGBA values to 1.
+
+Save the white ball model as my_ball under the /home directory. Then exit the Model Editor tool and go back to the Gazebo main world.
+
+Now that you are back in the Gazebo main world, you can click on “Insert” and drop the white ball anywhere in the scene.
+
+Now that you modeled the white ball, relaunch the nodes inside world.launch. Then verify that you can insert a my_ball anywhere inside your world.
+
+Place the white ball anywhere outside of your building structure, so that the robot would not see it. Then, save a copy of this new world under ~/catkin_ws/src/my_robot/worlds by replacing your old <yourname>.world file. Whenever you launch this newly saved world you should be able to see your building environment, in addition, the white ball.
+
+process_image: This client node will subscribe to the robot’s camera images and analyze them to determine the position of the white ball. 
+Once the ball position is determined, the client node will request a service from the drive_bot server node to drive the robot toward the ball. The robot can drive either left, right or forward, depending on the robot position inside the image.
+
+After you write this node, place the white ball in front of the robot’s camera. If everything works, your node should analyze the image, detect the ball’s position, and then request a ball_chaser/command_robot service to drive the robot towards the ball!
+
+The process_image.cpp client node is similar to the look_away.cpp client node that you wrote in this lesson. Both nodes contain a ROS subscriber and client. Please review the look_away.cpp node before you start coding the process_image.cpp node.
+
+process_image.cpp: This node will analyze the image and request services to drive the robot. Create the source code file within the src directory of your ball_chaser package. It might be a bit challenging to write this program from scratch, thus I am providing you with some hints. Attached below is a piece of the complete code with multiple hints to help you finish the implementation.
+```
+cd ~/catkin_ws/src/my_package/src && touch drive_bot.cpp
+```
+The code is as follows.
+```
+#include "ros/ros.h"
+#include "ball_chaser/DriveToTarget.h"
+#include <sensor_msgs/Image.h>
+
+// Define a global client that can request services
+ros::ServiceClient client;
+
+// This function calls the command_robot service to drive the robot in the specified direction
+void drive_robot(float lin_x, float ang_z)
+{
+    // TODO: Request a service and pass the velocities to it to drive the robot
+}
+
+// This callback function continuously executes and reads the image data
+void process_image_callback(const sensor_msgs::Image img)
+{
+
+    int white_pixel = 255;
+
+    // TODO: Loop through each pixel in the image and check if there's a bright white one
+    // Then, identify if this pixel falls in the left, mid, or right side of the image
+    // Depending on the white ball position, call the drive_bot function and pass velocities to it
+    // Request a stop when there's no white ball seen by the camera
+}
+
+int main(int argc, char** argv)
+{
+    // Initialize the process_image node and create a handle to it
+    ros::init(argc, argv, "process_image");
+    ros::NodeHandle n;
+
+    // Define a client service capable of requesting services from command_robot
+    client = n.serviceClient<ball_chaser::DriveToTarget>("/ball_chaser/command_robot");
+
+    // Subscribe to /camera/rgb/image_raw topic to read the image data inside the process_image_callback function
+    ros::Subscriber sub1 = n.subscribe("/camera/rgb/image_raw", 10, process_image_callback);
+
+    // Handle ROS communication events
+    ros::spin();
+
+    return 0;
+}
+```
+
+Edit CMakeLists.txt:
+```
+
+```
+Build package:
+```
+cd ~/catkin_ws/ && catkin_make && source devel/setup.bash
+```
+
+```
+roslaunch my_package world.launch
+```
+Run node:
+```
+cd ~/catkin_ws/ && source devel/setup.bash && rosrun ball_chaser drive_bot
+```
 
 
