@@ -577,6 +577,24 @@ int main(int argc, char** argv)
 }
 ```
 
+Create `DriveToTarget.srv` under `srv`.
+```
+cd ~/catkin_ws/src/ball_chaser/srv && touch DriveToTarget.srv 
+```
+
+Fill in the following into file.
+```
+float64 linear_x
+float64 angular_z
+---
+string msg_feedback
+```
+Check if it works:
+```
+cd ~/catkin_ws/ && source devel/setup.bash && rossrv show DriveToTarget
+```
+
+
 ```
 cd ~/catkin_ws/src/ball_chaser/src && touch drive_bot.cpp
 ```
