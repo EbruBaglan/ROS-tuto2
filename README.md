@@ -481,7 +481,7 @@ cd ~/catkin_ws/ && catkin_make
 After writing this node, you will be able to request the `ball_chaser/command_robot` service, either from the terminal or from a client node, to drive the robot by controlling its linear x and angular z velocities.
 
 The drive_bot.cpp node is similar to the arm_mover.cpp node that you already wrote. Both nodes contain a ROS publisher and service. But this time, instead of publishing messages to the arm joint angles, you have to publish messages to the wheels joint angles. Please refer to the arm_mover.cpp node before you begin coding the drive_bot.cpp node.
-
+<--
 arm_mover.cpp:
 ```
 #include "ros/ros.h"
@@ -576,6 +576,7 @@ int main(int argc, char** argv)
     return 0;
 }
 ```
+!-->
 
 Create `DriveToTarget.srv` under `srv`.
 ```
@@ -596,7 +597,7 @@ cd ~/catkin_ws/ && source devel/setup.bash && rossrv show DriveToTarget
 
 
 ```
-cd ~/catkin_ws/src/ball_chaser/src && touch drive_bot.cpp
+cd ~/catkin_ws/src/ball_chaser/src && gedit drive_bot.cpp
 ```
 
 The code for `drive_bot.cpp`: 
@@ -672,20 +673,30 @@ Run node:
 cd ~/catkin_ws/ && source devel/setup.bash && rosrun ball_chaser drive_bot
 ```
 
-cd ~/catkin_ws/
-$ source devel/setup.bash
+Make a service call:
+```
+rosservice call /ball_chaser/command_robot "linear_x: 0.5
+angular_z: 0.0"
+```
+This request should drive your robot forward
 
-$ rosservice call /ball_chaser/command_robot "linear_x: 0.5
-angular_z: 0.0"  # This request should drive your robot forward
+```
+rosservice call /ball_chaser/command_robot "linear_x: 0.0
+angular_z: 0.5"
+```
+This request should drive your robot left
 
-$ rosservice call /ball_chaser/command_robot "linear_x: 0.0
-angular_z: 0.5"  # This request should drive your robot left
+```
+rosservice call /ball_chaser/command_robot "linear_x: 0.0
+angular_z: -0.5"
+```
+This request should drive your robot right
 
-$ rosservice call /ball_chaser/command_robot "linear_x: 0.0
-angular_z: -0.5"  # This request should drive your robot right
-
-$ rosservice call /ball_chaser/command_robot "linear_x: 0.0
-angular_z: 0.0"  # This request should bring your robot to a complete stop
+```
+rosservice call /ball_chaser/command_robot "linear_x: 0.0
+angular_z: 0.0"
+```
+This request should bring your robot to a complete stop
 
 Let’s add the `drive_bot` node to a launch file. Create a `ball_chaser.launch` file under the launch directory of your `ball_chaser` package and then copy this code to it:
 
