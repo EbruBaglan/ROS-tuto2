@@ -393,8 +393,13 @@ A plugin for the wheel joints actuator.
 ```
 cd ~/catkin_ws/src/my_package/urdf && cp <full_path_to_my_robot.gazebo>/my_robot.gazebo .
 ```
-   
-3. Add the following line to `my_robot.xacro` immediately before `robot_footprint` link.
+
+3. Go to `my_robot.xacro`
+```
+cd ~/catkin_ws/src/my_package/urdf && gedit my_robot.xacro
+```
+
+4. Add the following line to `my_robot.xacro` immediately before `robot_footprint` link.
 ```
  <xacro:include filename="$(find my_package)/urdf/my_robot.gazebo" />
 ```
