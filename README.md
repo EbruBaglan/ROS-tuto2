@@ -578,7 +578,7 @@ int main(int argc, char** argv)
 ```
 
 ```
-cd ~/catkin_ws/src/my_package/src && touch drive_bot.cpp
+cd ~/catkin_ws/src/ball_chaser/src && touch drive_bot.cpp
 ```
 
 The code for `drive_bot.cpp`: 
