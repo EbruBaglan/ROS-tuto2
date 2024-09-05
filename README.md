@@ -479,104 +479,9 @@ cd ~/catkin_ws/ && catkin_make
 `a ball_chaser/command_robot` service to drive the robot around by setting its linear x and angular z velocities. The service server publishes messages containing the velocities for the wheel joints.
 
 After writing this node, you will be able to request the `ball_chaser/command_robot` service, either from the terminal or from a client node, to drive the robot by controlling its linear x and angular z velocities.
+<!--
 
 The drive_bot.cpp node is similar to the arm_mover.cpp node that you already wrote. Both nodes contain a ROS publisher and service. But this time, instead of publishing messages to the arm joint angles, you have to publish messages to the wheels joint angles. Please refer to the arm_mover.cpp node before you begin coding the drive_bot.cpp node.
-<!---
-arm_mover.cpp:
-```
-#include "ros/ros.h"
-#include "simple_arm/GoToPosition.h"
-#include <std_msgs/Float64.h>
-
-// Global joint publisher variables
-ros::Publisher joint1_pub, joint2_pub;
-
-// This function checks and clamps the joint angles to a safe zone
-std::vector<float> clamp_at_boundaries(float requested_j1, float requested_j2)
-{
-    // Define clamped joint angles and assign them to the requested ones
-    float clamped_j1 = requested_j1;
-    float clamped_j2 = requested_j2;
-
-    // Get min and max joint parameters, and assigning them to their respective variables
-    float min_j1, max_j1, min_j2, max_j2;
-    // Assign a new node handle since we have no access to the main one
-    ros::NodeHandle n2;
-    // Get node name
-    std::string node_name = ros::this_node::getName();
-    // Get joints min and max parameters
-    n2.getParam(node_name + "/min_joint_1_angle", min_j1);
-    n2.getParam(node_name + "/max_joint_1_angle", max_j1);
-    n2.getParam(node_name + "/min_joint_2_angle", min_j2);
-    n2.getParam(node_name + "/max_joint_2_angle", max_j2);
-
-    // Check if joint 1 falls in the safe zone, otherwise clamp it
-    if (requested_j1 < min_j1 || requested_j1 > max_j1) {
-        clamped_j1 = std::min(std::max(requested_j1, min_j1), max_j1);
-        ROS_WARN("j1 is out of bounds, valid range (%1.2f,%1.2f), clamping to: %1.2f", min_j1, max_j1, clamped_j1);
-    }
-    // Check if joint 2 falls in the safe zone, otherwise clamp it
-    if (requested_j2 < min_j2 || requested_j2 > max_j2) {
-        clamped_j2 = std::min(std::max(requested_j2, min_j2), max_j2);
-        ROS_WARN("j2 is out of bounds, valid range (%1.2f,%1.2f), clamping to: %1.2f", min_j2, max_j2, clamped_j2);
-    }
-
-    // Store clamped joint angles in a clamped_data vector
-    std::vector<float> clamped_data = { clamped_j1, clamped_j2 };
-
-    return clamped_data;
-}
-
-// This callback function executes whenever a safe_move service is requested
-bool handle_safe_move_request(simple_arm::GoToPosition::Request& req,
-    simple_arm::GoToPosition::Response& res)
-{
-
-    ROS_INFO("GoToPositionRequest received - j1:%1.2f, j2:%1.2f", (float)req.joint_1, (float)req.joint_2);
-
-    // Check if requested joint angles are in the safe zone, otherwise clamp them
-    std::vector<float> joints_angles = clamp_at_boundaries(req.joint_1, req.joint_2);
-
-    // Publish clamped joint angles to the arm
-    std_msgs::Float64 joint1_angle, joint2_angle;
-
-    joint1_angle.data = joints_angles[0];
-    joint2_angle.data = joints_angles[1];
-
-    joint1_pub.publish(joint1_angle);
-    joint2_pub.publish(joint2_angle);
-
-    // Wait 3 seconds for arm to settle
-    ros::Duration(3).sleep();
-
-    // Return a response message
-    res.msg_feedback = "Joint angles set - j1: " + std::to_string(joints_angles[0]) + " , j2: " + std::to_string(joints_angles[1]);
-    ROS_INFO_STREAM(res.msg_feedback);
-
-    return true;
-}
-
-int main(int argc, char** argv)
-{
-    // Initialize the arm_mover node and create a handle to it
-    ros::init(argc, argv, "arm_mover");
-    ros::NodeHandle n;
-
-    // Define two publishers to publish std_msgs::Float64 messages on joints respective topics
-    joint1_pub = n.advertise<std_msgs::Float64>("/simple_arm/joint_1_position_controller/command", 10);
-    joint2_pub = n.advertise<std_msgs::Float64>("/simple_arm/joint_2_position_controller/command", 10);
-
-    // Define a safe_move service with a handle_safe_move_request callback function
-    ros::ServiceServer service = n.advertiseService("/arm_mover/safe_move", handle_safe_move_request);
-    ROS_INFO("Ready to send joint commands");
-
-    // Handle ROS communication events
-    ros::spin();
-
-    return 0;
-}
-```
--->
 
 Create `DriveToTarget.srv` under `srv`.
 ```
@@ -595,144 +500,7 @@ Check if it works:
 cd ~/catkin_ws/ && source devel/setup.bash && rossrv show DriveToTarget
 ```
 
-
-```
-cd ~/catkin_ws/src/ball_chaser/src && gedit drive_bot.cpp
-```
-
-The code for `drive_bot.cpp`: 
-```
-#include "ros/ros.h"
-#include "geometry_msgs/Twist.h"
-#include "ball_chaser/DriveToTarget.h"
-
-// ROS::Publisher motor commands;
-ros::Publisher motor_command_publisher;
-
-// TODO: Create a handle_drive_request callback function that executes whenever a drive_bot service is requested
-// This function should publish the requested linear x and angular velocities to the robot wheel joints
-// After publishing the requested velocities, a message feedback should be returned with the requested wheel velocities
-bool drive_request_callback(ball_chaser::DriveToTarget::Request& req,
-                            ball_chaser::DriveToTarget::Response& res)
-{
-  ROS_INFO("DriveToTargetRequest received - linear_x: %1.2f, angular_z: %1.2f", (float)req.linear_x, (float)req.angular_z);
-
-  // Publish command velocity to "/cmd_vel"
-  geometry_msgs::Twist cmd_vel_;
-
-  cmd_vel_.linear.x = req.linear_x; // both of them are float64
-  cmd_vel_.angular.z = req.angular_z; // both of them are float64
-  
-  motor_cmd_pub.publish(cmd_vel_);
-
-  // Return a response message
-  res.msg_feedback = "Velocity cmd sent: linear_x = " + std::to_string(cmd_vel_.linear.x) + ", angular_z = " + std::to_string(cmd_vel_.angular.z);
-
-  ROS_INFO_STREAM(res.msg_feedback);
-  
-
-  return true;
-
-}
-
-int main(int argc, char** argv)
-{
-    // Initialize a ROS node
-    ros::init(argc, argv, "drive_bot");
-
-    // Create a ROS NodeHandle object
-    ros::NodeHandle n;
-
-    // Inform ROS master that we will be publishing a message of type geometry_msgs::Twist on the robot actuation topic with a publishing queue size of 10
-    motor_command_publisher = n.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
-
-    // TODO: Define a drive /ball_chaser/command_robot service with a handle_drive_request callback function
-  ros::ServiceServer service = nh.advertiseService("/ball_chaser/command_robot", drive_request_callback);
-  ROS_INFO("Ready to send command velocities");
-
-    // TODO: Handle ROS communication events
-    ros::spin();
-
-    return 0;
-}
-```
-Edit CMakeLists.txt:
-```
-
-```
-Build package:
-```
-cd ~/catkin_ws/ && catkin_make && source devel/setup.bash
-```
-
-```
-roslaunch my_package world.launch
-```
-Run node:
-```
-cd ~/catkin_ws/ && source devel/setup.bash && rosrun ball_chaser drive_bot
-```
-
-Make a service call:
-```
-rosservice call /ball_chaser/command_robot "linear_x: 0.5
-angular_z: 0.0"
-```
-This request should drive your robot forward
-
-```
-rosservice call /ball_chaser/command_robot "linear_x: 0.0
-angular_z: 0.5"
-```
-This request should drive your robot left
-
-```
-rosservice call /ball_chaser/command_robot "linear_x: 0.0
-angular_z: -0.5"
-```
-This request should drive your robot right
-
-```
-rosservice call /ball_chaser/command_robot "linear_x: 0.0
-angular_z: 0.0"
-```
-This request should bring your robot to a complete stop
-
-Let’s add the `drive_bot` node to a launch file. Create a `ball_chaser.launch` file under the launch directory of your `ball_chaser` package and then copy this code to it:
-
-```
-<launch>
-
- <!-- The drive_bot node -->
-  <node name="drive_bot" type="drive_bot" pkg="ball_chaser" output="screen">
-  </node>
-
-</launch>
-```
-Model a White Ball.
-```
-gazebo # then Edit-> Model Editor
-```
-Double click on the sphere, and change its radius to 0.1 both in Visual and Collision
-
-To change the ball’s color to white, set its Visual Ambient, Diffuse, Specular, and Emissive RGBA values to 1.
-
-Save the white ball model as my_ball under the /home directory. Then exit the Model Editor tool and go back to the Gazebo main world.
-
-Now that you are back in the Gazebo main world, you can click on “Insert” and drop the white ball anywhere in the scene.
-
-Now that you modeled the white ball, relaunch the nodes inside world.launch. Then verify that you can insert a my_ball anywhere inside your world.
-
-Place the white ball anywhere outside of your building structure, so that the robot would not see it. Then, save a copy of this new world under ~/catkin_ws/src/my_robot/worlds by replacing your old <yourname>.world file. Whenever you launch this newly saved world you should be able to see your building environment, in addition, the white ball.
-
-process_image: This client node will subscribe to the robot’s camera images and analyze them to determine the position of the white ball. 
-Once the ball position is determined, the client node will request a service from the drive_bot server node to drive the robot toward the ball. The robot can drive either left, right or forward, depending on the robot position inside the image.
-
-After you write this node, place the white ball in front of the robot’s camera. If everything works, your node should analyze the image, detect the ball’s position, and then request a ball_chaser/command_robot service to drive the robot towards the ball!
-
-The process_image.cpp client node is similar to the look_away.cpp client node that you wrote in this lesson. Both nodes contain a ROS subscriber and client. Please review the look_away.cpp node before you start coding the process_image.cpp node.
-
-process_image.cpp: This node will analyze the image and request services to drive the robot. Create the source code file within the src directory of your ball_chaser package. It might be a bit challenging to write this program from scratch, thus I am providing you with some hints. Attached below is a piece of the complete code with multiple hints to help you finish the implementation.
+Create the `drive_bot` node.
 ```
 cd ~/catkin_ws/src/my_package/src && touch drive_bot.cpp
 ```
@@ -775,7 +543,6 @@ int main(int argc, char** argv)
 
     // Create a ROS NodeHandle object
     ros::NodeHandle n;
-
 
     motor_command_publisher = n.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
 
@@ -874,5 +641,138 @@ Go right? Stop?
 ```
 rosservice call /ball_chaser/command_robot "linear_x: angular_z: "
 ```
+
+Create a launch file under `ball chaser` package.
+```
+gedit ~/catkin_ws/src/ball_chaser/launch/ball_chase.launch
+```
+
+Add the following inside.
+```
+<launch>
+
+ <!-- The drive_bot node -->
+  <node name="drive_bot" type="drive_bot" pkg="ball_chaser" output="screen">
+  </node>
+
+</launch>
+```
+
+
+
+
+### Step 8.2. Model a White Ball.
+Open Gazebo.
+```
+gazebo
+```
+Go to Edit >>Model Editor.
+
+Double click on the sphere, and change its radius to 0.1 both in Visual and Collision.
+
+To change the ball’s color to white: set its Visual Ambient, Diffuse, Specular, and Emissive RGBA values to 1.
+
+Save the white ball model as `my_ball` under the /home directory. Then exit the Model Editor tool and go back to the Gazebo main world.
+
+Now that you are back in the Gazebo main world, you can click on “Insert” and drop the white ball anywhere in the scene.
+
+Now that you modeled the white ball, relaunch the nodes inside world.launch. Then verify that you can insert a `my_ball` anywhere inside your world.
+
+Place the white ball anywhere outside of your building structure, so that the robot would not see it. Then, save a copy of this new world under `~/catkin_ws/src/my_robot/worlds` by replacing your old `<yourname>.world` file. Whenever you launch this newly saved world you should be able to see your building environment, in addition, the white ball.
+
+process_image: This client node will subscribe to the robot’s camera images and analyze them to determine the position of the white ball. 
+Once the ball position is determined, the client node will request a service from the drive_bot server node to drive the robot toward the ball. The robot can drive either left, right or forward, depending on the robot position inside the image.
+
+After you write this node, place the white ball in front of the robot’s camera. If everything works, your node should analyze the image, detect the ball’s position, and then request a ball_chaser/command_robot service to drive the robot towards the ball!
+
+The process_image.cpp client node is similar to the look_away.cpp client node. You’ll have to subscribe to the /camera/rgb/image_raw topic to get instantaneous images from the robot’s camera.
+
+
+process_image.cpp: This node will analyze the image and request services to drive the robot. Create the source code file within the src directory of your ball_chaser package. It might be a bit challenging to write this program from scratch, thus I am providing you with some hints. Attached below is a piece of the complete code with multiple hints to help you finish the implementation.
+
+Create the `process_image` node.
+```
+cd ~/catkin_ws/src/my_package/src && touch process_image.cpp
+```
+
+
+The code is as follows.
+```
+#include "ros/ros.h"
+#include "ball_chaser/DriveToTarget.h"
+#include <sensor_msgs/Image.h>
+
+// Define a global client that can request services
+ros::ServiceClient client;
+
+// This function calls the command_robot service to drive the robot in the specified direction
+void drive_robot(float lin_x, float ang_z)
+{
+    // TODO: Request a service and pass the velocities to it to drive the robot
+    ROS_INFO_STREAM("Driving the robot to the target.");
+    
+    // Request service with velocities
+    ball_chaser::DriveToTarget srv;
+    srv.request.linear_x = lin_x;
+    srv.request.angular_z = ang_z;
+    
+    // Call the DriveToTarget service and pass the requested velocities
+    if (!client.call(srv)) {
+	    ROS_ERROR("Failed to call service DriveToTarget.");
+	}
+}
+
+// This callback function continuously executes and reads the image data
+void process_image_callback(const sensor_msgs::Image img)
+{
+
+    int white_pixel = 255;
+
+    int height = img.height;
+    int step = img.step;
+    int region = -1;
+
+    for (int i = 0; i < height*step; i++){
+		if ((img.data[i]==255) && (img.data[i+1] == 255) && (img.data[i+2] == 255)){
+			region = i % step;
+			break;
+		}
+	}
+    float lin_x=0.0,ang_z=0.0;
+	// alani belirle sol mu sag mi
+
+    drive_robot(lin_x,ang_z);
+    if (region == -1){
+		ROS_INFO_STREAM("Target not found: Stopping robot...");
+	}
+	else{
+		ROS_INFO_STREAM("Target Detected: Driving to target");
+	}
+
+    // TODO: Loop through each pixel in the image and check if there's a bright white one
+    // Then, identify if this pixel falls in the left, mid, or right side of the image
+    // Depending on the white ball position, call the drive_bot function and pass velocities to it
+    // Request a stop when there's no white ball seen by the camera
+}
+
+int main(int argc, char** argv)
+{
+    // Initialize the process_image node and create a handle to it
+    ros::init(argc, argv, "process_image");
+    ros::NodeHandle n;
+
+    // Define a client service capable of requesting services from command_robot
+    client = n.serviceClient<ball_chaser::DriveToTarget>("/ball_chaser/command_robot");
+
+    // Subscribe to /camera/rgb/image_raw topic to read the image data inside the process_image_callback function
+    ros::Subscriber sub1 = n.subscribe("/camera/rgb/image_raw", 10, process_image_callback);
+
+    // Handle ROS communication events
+    ros::spin();
+
+    return 0;
+}
+```
+
 
 
