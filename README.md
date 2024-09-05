@@ -852,11 +852,11 @@ Build package:
 ```
 cd ~/catkin_ws/ && catkin_make && source devel/setup.bash
 ```
-
+Launch the world
 ```
 roslaunch my_package world.launch
 ```
-Run node:
+Run node
 ```
 cd ~/catkin_ws/ && source devel/setup.bash && rosrun ball_chaser drive_bot
 ```
