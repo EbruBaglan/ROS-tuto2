@@ -861,4 +861,18 @@ Run node:
 cd ~/catkin_ws/ && source devel/setup.bash && rosrun ball_chaser drive_bot
 ```
 
+Request a ball_chaser/command_robot service. Go forward:
+```
+rosservice call /ball_chaser/command_robot "linear_x: 0.5 angular_z: 0.0"  
+```
+
+Go left:
+```
+rosservice call /ball_chaser/command_robot "linear_x: 0.0 angular_z: 0.5" 
+```
+Go right? Stop?
+```
+rosservice call /ball_chaser/command_robot "linear_x: angular_z: "
+```
+
 
