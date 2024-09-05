@@ -739,43 +739,52 @@ cd ~/catkin_ws/src/my_package/src && touch drive_bot.cpp
 The code is as follows.
 ```
 #include "ros/ros.h"
+#include "geometry_msgs/Twist.h"
 #include "ball_chaser/DriveToTarget.h"
-#include <sensor_msgs/Image.h>
 
-// Define a global client that can request services
-ros::ServiceClient client;
+// ROS::Publisher motor commands;
+ros::Publisher motor_command_publisher;
 
-// This function calls the command_robot service to drive the robot in the specified direction
-void drive_robot(float lin_x, float ang_z)
-{
-    // TODO: Request a service and pass the velocities to it to drive the robot
-}
+// TODO: Create a handle_drive_request callback function that executes whenever a drive_bot service is requested
+// This function should publish the requested linear x and angular velocities to the robot wheel joints
+// After publishing the requested velocities, a message feedback should be returned with the requested wheel velocities
+  bool handle_drive_request(ball_chaser::DriveToTarget::Request& req, ball_chaser::DriveToTarget::Response& res)
+  {
 
-// This callback function continuously executes and reads the image data
-void process_image_callback(const sensor_msgs::Image img)
-{
+    ROS_INFO("DriveToTarget Request received - linear_x:%1.2f, angular_z:%1.2f", (float)req.linear_x, (float)req.angular_z);
 
-    int white_pixel = 255;
+    // Create a motor_command object of type geometry_msgs::Twist
+    geometry_msgs::Twist motor_command;
+    // Set wheel velocities
+    motor_command.linear.x = req.linear_x;
+    motor_command.angular.z = req.angular_z;
+    // Publish angles to drive the robot
+    motor_command_publisher.publish(motor_command);
 
-    // TODO: Loop through each pixel in the image and check if there's a bright white one
-    // Then, identify if this pixel falls in the left, mid, or right side of the image
-    // Depending on the white ball position, call the drive_bot function and pass velocities to it
-    // Request a stop when there's no white ball seen by the camera
-}
+    // Return a response message
+    res.msg_feedback = "cmd_vel command set - linear_x: " + std::to_string(motor_command.linear.x) + " , angular_z: " + std::to_string(motor_command.angular.z);
+    ROS_INFO_STREAM(res.msg_feedback);
+
+    return true;
+  }
 
 int main(int argc, char** argv)
 {
-    // Initialize the process_image node and create a handle to it
-    ros::init(argc, argv, "process_image");
+    // Initialize a ROS node
+    ros::init(argc, argv, "drive_bot");
+
+    // Create a ROS NodeHandle object
     ros::NodeHandle n;
 
-    // Define a client service capable of requesting services from command_robot
-    client = n.serviceClient<ball_chaser::DriveToTarget>("/ball_chaser/command_robot");
 
-    // Subscribe to /camera/rgb/image_raw topic to read the image data inside the process_image_callback function
-    ros::Subscriber sub1 = n.subscribe("/camera/rgb/image_raw", 10, process_image_callback);
+    motor_command_publisher = n.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
 
-    // Handle ROS communication events
+    //Topic you want to subscribe
+    // TODO: Define a drive /ball_chaser/command_robot service with a handle_drive_request callback function
+    ros::ServiceServer service = n.advertiseService("/ball_chaser/command_robot", handle_drive_request);
+
+    ROS_INFO("Ready to send drive requests!");
+
     ros::spin();
 
     return 0;
@@ -784,6 +793,59 @@ int main(int argc, char** argv)
 
 Edit CMakeLists.txt:
 ```
+cmake_minimum_required(VERSION 3.0.2)
+project(ball_chaser)
+
+## Compile as C++11, supported in ROS Kinetic and newer
+add_compile_options(-std=c++11)
+
+## Find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
+find_package(catkin REQUIRED COMPONENTS
+  message_generation
+  roscpp
+  std_msgs
+)
+
+## Generate services in the 'srv' folder
+add_service_files(
+   FILES
+   DriveToTarget.srv
+)
+
+## Generate added messages and services with any dependencies listed here
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+
+###################################
+## catkin specific configuration ##
+###################################
+## The catkin_package macro generates cmake config files for your package
+## Declare things to be passed to dependent projects
+## INCLUDE_DIRS: uncomment this if your package contains header files
+## LIBRARIES: libraries you create in this project that dependent projects also need
+## CATKIN_DEPENDS: catkin_packages dependent projects also need
+## DEPENDS: system dependencies of this project that dependent projects also need
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES ball_chaser
+#  CATKIN_DEPENDS message_generation roscpp std_msgs
+#  DEPENDS system_lib
+)
+
+## Add cmake target dependencies of the executable
+## same as for the library above
+# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+
+include_directories(include ${catkin_INCLUDE_DIRS})
+
+add_executable(drive_bot src/drive_bot.cpp)
+target_link_libraries(drive_bot ${catkin_LIBRARIES})
+add_dependencies(drive_bot ball_chaser_generate_messages_cpp)
 
 ```
 Build package:
