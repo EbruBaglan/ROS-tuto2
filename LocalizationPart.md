@@ -17,3 +17,10 @@ source devel/setup.bash
 ```
 roslaunch turtlebot_gazebo turtlebot_world.launch
 ```
+
+```
+rostopic list
+```
+```
+rosrun rqt_graph rqt_graph
+```
