@@ -14,3 +14,6 @@ rosdep -i install turtlebot_gazebo
 catkin_make
 source devel/setup.bash
 ```
+```
+roslaunch turtlebot_gazebo turtlebot_world.launch
+```
